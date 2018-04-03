@@ -11,10 +11,10 @@ class App extends React.Component {
 
     this.state = {
       data: [],
-      width: 911,
-      height: 393,
+      width: 640,
+      height: 480,
       value: 1,
-      isFormat: true,
+      isFormat: false,
       isSampling: false
     };
 
