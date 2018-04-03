@@ -69,7 +69,7 @@ class App extends React.Component {
   }
 
   sampleMousePos() {
-    if (!this.state.isSampling || !this.currentMousePos.value) {
+    if (!this.state.isSampling) {
       return;
     }
 
