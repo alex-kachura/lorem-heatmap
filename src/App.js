@@ -2,7 +2,6 @@ import React from "react";
 import ReactHeatmap from "react-heatmap";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
-import logo from "./logo.svg";
 import "./App.css";
 
 class App extends React.Component {
@@ -14,6 +13,8 @@ class App extends React.Component {
       width: 640,
       height: 480,
       value: 1,
+      maxValue: 5,
+      isPercent: false,
       isFormat: false,
       isSampling: false
     };
@@ -47,25 +48,24 @@ class App extends React.Component {
   }
 
   saveMousePos(event) {
-    if (!this.state.isSampling) {
+    const { isSampling, isPercent, width, height, value } = this.state;
+
+    if (!isSampling) {
       return;
     }
 
     const { pageX, pageY } = event;
-    const {
-      offsetLeft,
-      offsetTop,
-      offsetWidth,
-      offsetHeight
-    } = this.generationElement;
-    const x = pageX - offsetLeft;
-    const y = pageY - offsetTop;
+    const { offsetLeft, offsetTop } = this.generationElement;
 
-    this.currentMousePos = {
-      x: Math.floor(x * 100 / offsetWidth),
-      y: Math.floor(y * 100 / offsetHeight),
-      value: this.state.value
-    };
+    let x = pageX - offsetLeft;
+    let y = pageY - offsetTop;
+
+    if (isPercent) {
+      x = Math.floor(x * 100 / width);
+      y = Math.floor(y * 100 / height);
+    }
+
+    this.currentMousePos = { x, y, value };
   }
 
   sampleMousePos() {
@@ -92,24 +92,32 @@ class App extends React.Component {
   }
 
   randFromInterval(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.ceil(Math.random() * (max - min + 1) + min);
   }
 
   setRandomData() {
-    const { width, height } = this.state;
+    const { width, height, isPercent, maxValue } = this.state;
     const data = [];
     const area = width * height;
-    const dotsCount = this.randFromInterval(area * 0.001, area * 0.12);
+    const dotsCount = this.randFromInterval(
+      area * 0.0000001,
+      area * (isPercent ? 0.005 : 0.001)
+    );
 
     for (let i = 0; i < dotsCount; i++) {
-      const x = this.randFromInterval(0, width - 1);
-      const y = this.randFromInterval(0, height - 1);
-      const value = this.randFromInterval(1, 5);
+      let x = this.randFromInterval(0, width - 1);
+      let y = this.randFromInterval(0, height - 1);
+      const value = this.randFromInterval(1, maxValue);
 
-      data.push({ x: x, y: y, value: value });
+      if (isPercent) {
+        x = Math.ceil(x * 100 / width);
+        y = Math.ceil(y * 100 / height);
+      }
+
+      data.push({ x, y, value });
     }
 
-    this.setState({ data: data });
+    this.setState({ data });
   }
 
   handleInputChange(event) {
@@ -136,23 +144,22 @@ class App extends React.Component {
   }
 
   render() {
-    const { data, width, height, value, isFormat } = this.state;
+    const {
+      data,
+      width,
+      height,
+      value,
+      maxValue,
+      isPercent,
+      isFormat
+    } = this.state;
     const json = JSON.stringify(data, null, isFormat ? 2 : 0);
 
     return (
       <div className="app">
         <header className="app-header">
-          <img src={logo} className="app-logo" alt="logo" />
           <h1 className="app-title">Lorem Heatmap</h1>
         </header>
-
-        <div
-          className="heatmap-generation-field"
-          ref={el => (this.generationElement = el)}
-          style={{ width, height }}
-        >
-          <ReactHeatmap className="heatmap" data={data} />
-        </div>
 
         <div className="heatmap-generation-controls">
           <button onClick={this.reset}>Reset</button>
@@ -187,13 +194,46 @@ class App extends React.Component {
             />
           </label>
           <label>
+            Max value:{" "}
+            <input
+              type="number"
+              name="maxValue"
+              value={maxValue}
+              onChange={this.handleInputChange}
+              min="1"
+              max="5"
+            />
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="isPercent"
+              checked={isPercent}
+              onChange={this.handleCheckboxChange}
+            />
+            {`Units: ${isPercent ? "Percent" : "Pixels"}`}
+          </label>
+          <label>
             <input
               type="checkbox"
               name="isFormat"
               checked={isFormat}
               onChange={this.handleCheckboxChange}
-            />Formatting
+            />
+            {`Formatting: ${isFormat ? "On" : "Off"}`}
           </label>
+        </div>
+
+        <div
+          className="heatmap-generation-field"
+          ref={el => (this.generationElement = el)}
+          style={{ width, height }}
+        >
+          <ReactHeatmap
+            className="heatmap"
+            data={data}
+            unit={isPercent ? "percent" : "pixels"}
+          />
         </div>
 
         <div className="heatmap-data-output">
