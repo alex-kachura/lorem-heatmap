@@ -1,6 +1,6 @@
 # Lorem Heatmap
 
-A heatmap generator
+A heatmap generator. Based on [react-heatmap](https://github.com/JonathanWi/react-heatmap) by Jonathan Widawski
 
 ## Demo
 
@@ -19,6 +19,10 @@ or
 npm i
 npm start
 ```
+
+## Links
+
+* [heatmap.js](https://www.patrick-wied.at/static/heatmapjs/)
 
 ## License
 
