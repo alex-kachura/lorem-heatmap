@@ -14,7 +14,7 @@ class App extends React.Component {
       height: 480,
       value: 1,
       maxValue: 5,
-      isPercent: false,
+      isPercent: true,
       isFormat: false,
       isSampling: false
     };
@@ -101,7 +101,7 @@ class App extends React.Component {
     const area = width * height;
     const dotsCount = this.randFromInterval(
       area * 0.0000001,
-      area * (isPercent ? 0.005 : 0.001)
+      area * (isPercent ? 0.005 : 0.0009)
     );
 
     for (let i = 0; i < dotsCount; i++) {
