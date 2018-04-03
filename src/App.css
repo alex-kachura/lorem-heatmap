@@ -30,7 +30,7 @@ button {
   grid-gap: var(--padding);
 }
 
-.app-header {
+.app__header {
   grid-area: header;
   display: flex;
   align-items: center;
@@ -40,29 +40,29 @@ button {
   background-color: #222;
 }
 
-.app-title {
+.app__header__title {
   font-size: 1.5em;
   margin: 0;
 }
 
-.heatmap-generation-controls {
+.app__heatmap__controls {
   grid-area: controls;
   margin-left: var(--padding);
   line-height: 30px;
 }
 
-.heatmap-generation-controls label {
+.app__heatmap__controls label {
   display: block;
 }
 
-.heatmap-generation-field {
+.app__heatmap__canvas {
   grid-area: heatmap;
   position: relative;
   margin-left: var(--padding);
   border: 2px solid #222;
 }
 
-.heatmap-data-output {
+.app__heatmap__json {
   grid-area: output;
   justify-self: end;
   margin-right: var(--padding);
@@ -70,7 +70,7 @@ button {
   height: 90vh;
 }
 
-.heatmap-data-output textarea {
+.app__heatmap__json textarea {
   font-family: monospace;
   font-size: 12px;
   outline: none;

@@ -157,11 +157,11 @@ class App extends React.Component {
 
     return (
       <div className="app">
-        <header className="app-header">
-          <h1 className="app-title">Lorem Heatmap</h1>
+        <header className="app__header">
+          <h1 className="app__header__title">Lorem Heatmap</h1>
         </header>
 
-        <div className="heatmap-generation-controls">
+        <div className="app__heatmap__controls">
           <button onClick={this.reset}>Reset</button>
           <button onClick={this.setRandomData}>Randomize</button>
           <label>
@@ -225,18 +225,14 @@ class App extends React.Component {
         </div>
 
         <div
-          className="heatmap-generation-field"
+          className="app__heatmap__canvas"
           ref={el => (this.generationElement = el)}
           style={{ width, height }}
         >
-          <ReactHeatmap
-            className="heatmap"
-            data={data}
-            unit={isPercent ? "percent" : "pixels"}
-          />
+          <ReactHeatmap data={data} unit={isPercent ? "percent" : "pixels"} />
         </div>
 
-        <div className="heatmap-data-output">
+        <div className="app__heatmap__json">
           <textarea value={json} onChange={this.handleTextareaChange} />
           <CopyToClipboard text={json}>
             <button>Copy to clipboard</button>
