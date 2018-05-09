@@ -4,6 +4,8 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 
 import "./App.css";
 
+let appKey = 0;
+
 class App extends React.Component {
   constructor(...args) {
     super(...args);
@@ -11,7 +13,7 @@ class App extends React.Component {
     this.state = {
       data: [],
       width: 640,
-      height: 480,
+      height: 380,
       value: 1,
       maxValue: 5,
       isPercent: true,
@@ -20,17 +22,6 @@ class App extends React.Component {
     };
 
     this.currentMousePos = { x: 0, y: 0, value: 0 };
-
-    this.saveMousePos = this.saveMousePos.bind(this);
-    this.sampleMousePos = this.sampleMousePos.bind(this);
-    this.startSampling = this.startSampling.bind(this);
-    this.pauseSampling = this.pauseSampling.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
-    this.handleTextareaChange = this.handleTextareaChange.bind(this);
-    this.randFromInterval = this.randFromInterval.bind(this);
-    this.setRandomData = this.setRandomData.bind(this);
-    this.reset = this.reset.bind(this);
   }
 
   componentDidMount() {
@@ -47,7 +38,7 @@ class App extends React.Component {
     window.clearInterval(this.mouseSampleInterval);
   }
 
-  saveMousePos(event) {
+  saveMousePos = event => {
     const { isSampling, isPercent, width, height, value } = this.state;
 
     if (!isSampling) {
@@ -66,9 +57,9 @@ class App extends React.Component {
     }
 
     this.currentMousePos = { x, y, value };
-  }
+  };
 
-  sampleMousePos() {
+  sampleMousePos = () => {
     if (!this.state.isSampling) {
       return;
     }
@@ -77,25 +68,25 @@ class App extends React.Component {
 
     data.push(this.currentMousePos);
     this.setState({ data });
-  }
+  };
 
-  startSampling() {
+  startSampling = () => {
     this.setState({ isSampling: true });
-  }
+  };
 
-  pauseSampling() {
+  pauseSampling = () => {
     this.setState({ isSampling: false });
-  }
+  };
 
-  reset() {
+  reset = () => {
     this.setState({ data: [] });
-  }
+  };
 
-  randFromInterval(min, max) {
+  randFromInterval = (min, max) => {
     return Math.ceil(Math.random() * (max - min + 1) + min);
-  }
+  };
 
-  setRandomData() {
+  setRandomData = () => {
     const { width, height, isPercent, maxValue } = this.state;
     const data = [];
     const area = width * height;
@@ -107,7 +98,7 @@ class App extends React.Component {
     for (let i = 0; i < dotsCount; i++) {
       let x = this.randFromInterval(0, width - 1);
       let y = this.randFromInterval(0, height - 1);
-      const value = this.randFromInterval(1, maxValue);
+      const value = this.randFromInterval(1, maxValue - 1);
 
       if (isPercent) {
         x = Math.ceil(x * 100 / width);
@@ -118,21 +109,21 @@ class App extends React.Component {
     }
 
     this.setState({ data });
-  }
+  };
 
-  handleInputChange(event) {
+  handleInputChange = event => {
     const { name, value } = event.target;
 
     this.setState({ [name]: value });
-  }
+  };
 
-  handleCheckboxChange(event) {
+  handleCheckboxChange = event => {
     const { name, checked } = event.target;
 
     this.setState({ [name]: checked });
-  }
+  };
 
-  handleTextareaChange(event) {
+  handleTextareaChange = event => {
     try {
       const { value } = event.target;
       const data = JSON.parse(value);
@@ -141,7 +132,32 @@ class App extends React.Component {
     } catch (e) {
       console.error(e);
     }
-  }
+  };
+
+  handleSizeChange = event => {
+    const { name, value } = event.target;
+
+    appKey++;
+
+    this.setState({ [name]: value }, () => {
+      const el = this[`${name}Input`];
+      el.focus();
+      moveCursorToEnd(el);
+
+      if (value && value !== "0") {
+        this.componentWillUnmount();
+        this.componentDidMount();
+      }
+    });
+  };
+
+  onCopy = () => {
+    this.setState({ copied: true }, () => {
+      setTimeout(() => {
+        this.setState({ copied: false });
+      }, 2000);
+    });
+  };
 
   render() {
     const {
@@ -151,12 +167,13 @@ class App extends React.Component {
       value,
       maxValue,
       isPercent,
-      isFormat
+      isFormat,
+      copied
     } = this.state;
     const json = JSON.stringify(data, null, isFormat ? 2 : 0);
 
     return (
-      <div className="app">
+      <div className="app" key={appKey}>
         <header className="app__header">
           <h1 className="app__header__title">Lorem Heatmap</h1>
         </header>
@@ -170,7 +187,8 @@ class App extends React.Component {
               type="number"
               name="width"
               value={width}
-              onChange={this.handleInputChange}
+              onChange={this.handleSizeChange}
+              ref={el => (this.widthInput = el)}
             />
           </label>
           <label>
@@ -179,7 +197,8 @@ class App extends React.Component {
               type="number"
               name="height"
               value={height}
-              onChange={this.handleInputChange}
+              onChange={this.handleSizeChange}
+              ref={el => (this.heightInput = el)}
             />
           </label>
           <label>
@@ -190,7 +209,7 @@ class App extends React.Component {
               value={value}
               onChange={this.handleInputChange}
               min="1"
-              max="5"
+              max={maxValue}
             />
           </label>
           <label>
@@ -201,7 +220,6 @@ class App extends React.Component {
               value={maxValue}
               onChange={this.handleInputChange}
               min="1"
-              max="5"
             />
           </label>
           <label>
@@ -227,14 +245,15 @@ class App extends React.Component {
         <div
           className="app__heatmap__canvas"
           ref={el => (this.generationElement = el)}
-          style={{ width, height }}
+          style={{ width: `${width}px`, height: `${height}px` }}
         >
           <ReactHeatmap data={data} unit={isPercent ? "percent" : "pixels"} />
         </div>
 
         <div className="app__heatmap__json">
           <textarea value={json} onChange={this.handleTextareaChange} />
-          <CopyToClipboard text={json}>
+          <span className={copied && "active"}>Copied</span>
+          <CopyToClipboard onCopy={this.onCopy} text={json}>
             <button>Copy to clipboard</button>
           </CopyToClipboard>
         </div>
@@ -244,3 +263,9 @@ class App extends React.Component {
 }
 
 export default App;
+
+function moveCursorToEnd(el) {
+  const val = el.value;
+  el.value = "";
+  el.value = val;
+}

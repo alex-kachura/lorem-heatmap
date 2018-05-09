@@ -57,9 +57,11 @@ button {
 
 .app__heatmap__canvas {
   grid-area: heatmap;
+  align-self: end;
   position: relative;
   margin-left: var(--padding);
   border: 2px solid #222;
+  box-sizing: content-box;
 }
 
 .app__heatmap__json {
@@ -68,9 +70,10 @@ button {
   margin-right: var(--padding);
   width: 400px;
   height: 90vh;
+  text-align: right;
 }
 
-.app__heatmap__json textarea {
+.app__heatmap__json > textarea {
   font-family: monospace;
   font-size: 12px;
   outline: none;
@@ -78,4 +81,18 @@ button {
   height: calc(100% - var(--button-height));
   resize: none;
   border: 2px solid #222;
+}
+
+.app__heatmap__json > span {
+  color: #39b54a;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.app__heatmap__json > span.active {
+  opacity: 1;
+}
+
+.app__heatmap__json > button {
+  margin-left: 1em;
 }
